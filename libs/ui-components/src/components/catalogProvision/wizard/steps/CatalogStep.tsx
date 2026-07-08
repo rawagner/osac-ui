@@ -20,10 +20,7 @@ import type { ComputeInstanceCatalogItem } from '@osac/types';
 import type { BuildComputeInstanceCreateBodyInput } from '../../../../api/v1/compute-instance-wire';
 import { useTranslation } from '../../../../hooks/useTranslation';
 import CatalogItemCard from '../../../catalog/CatalogItemCard';
-import {
-  type CatalogItemKind,
-  filterCatalogItemsBySearch,
-} from '../../../catalog/catalogItemDisplay';
+import { filterCatalogItemsBySearch } from '../../../catalog/catalogItemDisplay';
 import { getVisibleFieldError } from '../../../Form/fieldError';
 import { useShowFieldValidationErrors } from '../../../Form/FieldValidationContext';
 import { FormFieldHelper } from '../../../Form/FormFieldHelper';
@@ -50,8 +47,6 @@ export const CatalogStep = ({ adapter }: Props) => {
     isError: catalogError,
     refetch: refetchCatalogItems,
   } = adapter.useCatalogItems();
-
-  const catalogItemKind: CatalogItemKind = adapter.kind === 'cluster' ? 'cluster' : 'vm';
 
   const filtered = useMemo(
     () => filterCatalogItemsBySearch(catalogItems, search),
@@ -143,14 +138,12 @@ export const CatalogStep = ({ adapter }: Props) => {
                 <GalleryItem key={item.id}>
                   <CatalogItemCard
                     item={item}
-                    kind={catalogItemKind}
-                    id={`catalog-item-card-${item.id}`}
                     ouiaId={`catalog-item-option-${item.id}`}
                     selection={{
                       selected,
                       radioName: 'selectedCatalogItem',
                       onSelect: () => {
-                        void handleSelect(item);
+                        void handleSelect(item as ComputeInstanceCatalogItem);
                       },
                     }}
                   />

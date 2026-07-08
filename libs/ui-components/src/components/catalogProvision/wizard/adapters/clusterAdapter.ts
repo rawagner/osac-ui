@@ -1,15 +1,13 @@
-import type { CatalogProvisionAdapter } from './types';
-import { useClusterCatalogItems } from '../../../../api/v1/cluster-catalog-item';
-import {
-  type CatalogProvisionCatalogItem,
-  clusterCatalogItemToProvisionItem,
-} from '../../catalogProvisionItem';
+import { CatalogItem } from '@osac/ui-components/components/catalog/catalogItemDisplay';
+
 import type { ComputeInstanceWizardValues } from './computeInstance/fields';
 import { createEmptyComputeInstanceValues } from './computeInstance/payload';
+import type { CatalogProvisionAdapter } from './types';
+import { useClusterCatalogItems } from '../../../../api/v1/cluster-catalog-item';
 
 /** Placeholder until cluster catalog provisioning is implemented. */
 export const clusterAdapter: CatalogProvisionAdapter<
-  CatalogProvisionCatalogItem,
+  CatalogItem,
   ComputeInstanceWizardValues,
   Record<string, never>
 > = {
@@ -17,7 +15,7 @@ export const clusterAdapter: CatalogProvisionAdapter<
   useCatalogItems: () => {
     const query = useClusterCatalogItems();
     return {
-      data: (query.data ?? []).map(clusterCatalogItemToProvisionItem),
+      data: query.data ?? [],
       isPending: query.isPending,
       isError: query.isError,
       refetch: () => {
