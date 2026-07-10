@@ -1,7 +1,11 @@
 import { Content } from '@patternfly/react-core';
 import { Table, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table';
 
-import type { BareMetalInstanceCondition, ClusterCondition, ComputeInstanceCondition } from '@osac/types';
+import type {
+  BareMetalInstanceCondition,
+  ClusterCondition,
+  ComputeInstanceCondition,
+} from '@osac/types';
 
 import {
   type ConditionResourceKind,

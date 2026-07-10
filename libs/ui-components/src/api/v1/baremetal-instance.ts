@@ -1,4 +1,5 @@
 import { useMutation } from '@tanstack/react-query';
+import type { MessageInitShape } from '@bufbuild/protobuf';
 
 import {
   type BareMetalInstance,
@@ -83,6 +84,20 @@ export const useDeleteBareMetalInstance = () => {
       apiFetch<void>('v1/baremetal_instances', {
         pathParams: [id],
         method: 'DELETE',
+      }),
+    onSuccess: () => invalidateBareMetalInstancesQueries(qc),
+  });
+};
+
+export const useCreateBareMetalInstance = () => {
+  const apiFetch = useApiFetch();
+  const qc = useApiQueryClient();
+  return useMutation({
+    mutationFn: (body: MessageInitShape<typeof BareMetalInstanceSchema>) =>
+      apiFetch<BareMetalInstance>('v1/baremetal_instances', {
+        method: 'POST',
+        body,
+        decode: BareMetalInstanceSchema,
       }),
     onSuccess: () => invalidateBareMetalInstancesQueries(qc),
   });

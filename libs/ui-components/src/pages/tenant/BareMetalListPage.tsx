@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Button, SearchInput } from '@patternfly/react-core';
+import { Button, SearchInput, Toolbar, ToolbarContent, ToolbarGroup, ToolbarItem } from '@patternfly/react-core';
 import { Table, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table';
 
 import { useBareMetalInstances } from '@osac/ui-components/api/v1/baremetal-instance';
@@ -10,11 +10,13 @@ import ListPage from '@osac/ui-components/components/Page/ListPage';
 import ListPageBody from '@osac/ui-components/components/Page/ListPageBody';
 import { Timestamp } from '@osac/ui-components/components/Primitives/Timestamp';
 import { SubtleContent } from '@osac/ui-components/components/SubtleContent/SubtleContent';
+import { useSession } from '@osac/ui-components/hooks/use-session';
 import { useTranslation } from '@osac/ui-components/hooks/useTranslation';
 
 export const BareMetalListPage = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const { role } = useSession();
   const [search, setSearch] = useState('');
 
   const { data: instances = [], isLoading, error } = useBareMetalInstances();
@@ -32,16 +34,30 @@ export const BareMetalListPage = () => {
       title={t('Bare Metal')}
       description={t('View and manage your bare metal instances.')}
       error={error}
+      actions={
+        role === 'tenantUser' ? (
+          <Button variant="primary" onClick={() => navigate('/bare-metal/create')}>
+            {t('Provision bare metal')}
+          </Button>
+        ) : undefined
+      }
     >
       <ListPageBody isLoading={isLoading} error={error}>
-        <SearchInput
-          placeholder={t('Search by name')}
-          value={search}
-          onChange={(_e, v) => setSearch(v)}
-          onClear={() => setSearch('')}
-          aria-label={t('Filter bare metal instances by name')}
-          style={{ maxWidth: '20rem', marginBottom: 'var(--pf-t--global--spacer--md)' }}
-        />
+        <Toolbar>
+          <ToolbarContent>
+            <ToolbarGroup>
+              <ToolbarItem>
+                <SearchInput
+                  placeholder={t('Search by name')}
+                  value={search}
+                  onChange={(_e, v) => setSearch(v)}
+                  onClear={() => setSearch('')}
+                  aria-label={t('Filter bare metal instances by name')}
+                />
+              </ToolbarItem>
+            </ToolbarGroup>
+          </ToolbarContent>
+        </Toolbar>
         {filteredInstances.length === 0 ? (
           <SubtleContent component="p">
             {search

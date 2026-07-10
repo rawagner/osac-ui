@@ -7,19 +7,19 @@ import {
 
 import type { ComputeInstanceCatalogItem } from '@osac/types';
 
-import type { BuildComputeInstanceCreateBodyInput } from '../../../../api/v1/compute-instance-wire';
 import { useTranslation } from '../../../../hooks/useTranslation';
-import type { ComputeInstanceWizardValues } from '../adapters/computeInstance/fields';
+import type { CatalogProvisionPayload } from '../../catalogProvisionTypes';
+import type { CatalogProvisionWizardValues } from '../../catalogProvisionTypes';
 import type { CatalogProvisionAdapter } from '../adapters/types';
 
 interface Props {
   adapter: CatalogProvisionAdapter<
     ComputeInstanceCatalogItem,
-    ComputeInstanceWizardValues,
-    BuildComputeInstanceCreateBodyInput
+    CatalogProvisionWizardValues,
+    CatalogProvisionPayload
   >;
   catalogItem: ComputeInstanceCatalogItem | null;
-  values: ComputeInstanceWizardValues;
+  values: CatalogProvisionWizardValues;
 }
 
 export const ReviewStep = ({ adapter, catalogItem, values }: Props) => {

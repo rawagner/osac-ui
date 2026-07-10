@@ -112,6 +112,13 @@ export const CatalogPage = ({ isProviderGlobal = false }: Props) => {
             >
               {t('Create virtual machine')}
             </Button>
+          ) : selectedCatalogItem?.kind === 'bm' ? (
+            <Button
+              variant="primary"
+              onClick={() => navigate(`/bare-metal/create/${selectedCatalogItem.item.id}`)}
+            >
+              {t('Provision bare metal')}
+            </Button>
           ) : null
         }
       >

@@ -17,28 +17,28 @@ import { useFormikContext } from 'formik';
 
 import type { ComputeInstanceCatalogItem } from '@osac/types';
 
-import type { BuildComputeInstanceCreateBodyInput } from '../../../../api/v1/compute-instance-wire';
 import { useTranslation } from '../../../../hooks/useTranslation';
 import CatalogItemCard from '../../../catalog/CatalogItemCard';
 import { filterCatalogItemsBySearch } from '../../../catalog/catalogItemDisplay';
 import { getVisibleFieldError } from '../../../Form/fieldError';
 import { useShowFieldValidationErrors } from '../../../Form/FieldValidationContext';
 import { FormFieldHelper } from '../../../Form/FormFieldHelper';
-import type { ComputeInstanceWizardValues } from '../adapters/computeInstance/fields';
+import type { CatalogProvisionPayload } from '../../catalogProvisionTypes';
+import type { CatalogProvisionWizardValues } from '../../catalogProvisionTypes';
 import type { CatalogProvisionAdapter } from '../adapters/types';
 
 interface Props {
   adapter: CatalogProvisionAdapter<
     ComputeInstanceCatalogItem,
-    ComputeInstanceWizardValues,
-    BuildComputeInstanceCreateBodyInput
+    CatalogProvisionWizardValues,
+    CatalogProvisionPayload
   >;
 }
 
 export const CatalogStep = ({ adapter }: Props) => {
   const { t } = useTranslation();
   const [search, setSearch] = useState('');
-  const formik = useFormikContext<ComputeInstanceWizardValues>();
+  const formik = useFormikContext<CatalogProvisionWizardValues>();
   const { values } = formik;
 
   const {

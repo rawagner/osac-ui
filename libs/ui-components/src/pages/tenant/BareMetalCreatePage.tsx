@@ -10,10 +10,10 @@ import {
   Title,
 } from '@patternfly/react-core';
 
-import { apiQueryKey } from '@osac/ui-components/api/types';
-import { useApiQueryClient } from '@osac/ui-components/api/use-api-query';
-import { useProvisionComputeInstance } from '@osac/ui-components/api/v1/compute-instance';
-import type { BuildComputeInstanceCreateBodyInput } from '@osac/ui-components/api/v1/compute-instance-wire';
+import type { MessageInitShape } from '@bufbuild/protobuf';
+
+import { BareMetalInstanceSchema } from '@osac/types';
+import { useCreateBareMetalInstance } from '@osac/ui-components/api/v1/baremetal-instance';
 import {
   CatalogProvisionWizard,
   type CatalogProvisionPayload,
@@ -21,12 +21,11 @@ import {
 } from '@osac/ui-components/components/catalogProvision/CatalogProvisionWizard';
 import { useTranslation } from '@osac/ui-components/hooks/useTranslation';
 
-export const VmCreatePage = () => {
+export const BareMetalCreatePage = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { catalogItemId } = useParams<{ catalogItemId?: string }>();
-  const provisionVm = useProvisionComputeInstance();
-  const qc = useApiQueryClient();
+  const createBareMetalInstance = useCreateBareMetalInstance();
   const [closeHandler, setCloseHandler] = useState<CatalogProvisionWizardCloseHandler | null>(null);
 
   const handleCloseHandlerChange = useCallback((handler: CatalogProvisionWizardCloseHandler) => {
@@ -34,27 +33,20 @@ export const VmCreatePage = () => {
   }, []);
 
   const handleWizardClosed = useCallback(() => {
-    navigate('/vms');
+    navigate('/bare-metal');
   }, [navigate]);
 
   const handleWizardProvision = useCallback(
     async (payload: CatalogProvisionPayload) => {
-      const { instance, warnings } = await provisionVm.mutateAsync({
-        vm: payload as BuildComputeInstanceCreateBodyInput,
-        specCatalogItemOnly: true,
-      });
+      const instance = await createBareMetalInstance.mutateAsync(
+        payload as MessageInitShape<typeof BareMetalInstanceSchema>,
+      );
       if (!instance.id) {
         throw new Error('Create response missing id');
       }
-      qc.setQueryData(apiQueryKey('v1/compute_instances', [instance.id]), instance);
-      navigate(
-        `/vms/${instance.id}`,
-        warnings.length
-          ? { replace: true, state: { provisionWarnings: warnings } }
-          : { replace: true },
-      );
+      navigate(`/bare-metal/${instance.id}`, { replace: true });
     },
-    [navigate, provisionVm, qc],
+    [createBareMetalInstance, navigate],
   );
 
   return (
@@ -69,19 +61,21 @@ export const VmCreatePage = () => {
                 onClick={() => closeHandler?.requestClose()}
                 isDisabled={closeHandler?.pending}
               >
-                {t('Virtual Machines')}
+                {t('Bare Metal')}
               </Button>
             </BreadcrumbItem>
-            <BreadcrumbItem isActive>{t('catalogProvision.vm.breadcrumbCreate')}</BreadcrumbItem>
+            <BreadcrumbItem isActive>{t('Provision bare metal')}</BreadcrumbItem>
           </Breadcrumb>
           <Title headingLevel="h1" size="3xl">
-            {t('catalogProvision.vm.wizardTitle')}
+            {t('Provision bare metal')}
           </Title>
-          <Content component="p">{t('catalogProvision.vm.wizardDescription')}</Content>
+          <Content component="p">
+            {t('Provision a bare metal instance from a catalog item.')}
+          </Content>
         </Stack>
       </PageSection>
       <CatalogProvisionWizard
-        kind='compute_instance'
+        kind='bare_metal_instance'
         initialCatalogItemId={catalogItemId}
         onProvision={handleWizardProvision}
         onClosed={handleWizardClosed}
