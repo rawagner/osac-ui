@@ -19,6 +19,7 @@ import {
   ModalFooter,
   ModalHeader,
   PageToggleButton,
+  Stack,
   Title,
   Toolbar,
   ToolbarContent,
@@ -44,7 +45,7 @@ export const ShellMasthead = ({ onLogout }: ShellMastheadProps) => {
   const [isPreferencesOpen, setPreferencesOpen] = React.useState(false);
   const [logoutError, setLogoutError] = React.useState<string>();
   const navigate = useNavigate();
-  const { role, username } = useSession();
+  const { role, username, tenantId } = useSession();
   const displayName = username || 'User';
 
   return (
@@ -72,9 +73,12 @@ export const ShellMasthead = ({ onLogout }: ShellMastheadProps) => {
           </MastheadToggle>
           <MastheadLogo>
             <MastheadBrand>
-              <Title headingLevel="h4" size="lg">
-                Red Hat OSAC
-              </Title>
+              <Stack>
+                <Title headingLevel="h4" size="lg">
+                  Red Hat OSAC
+                </Title>
+                {tenantId && <div>{t('Tenant: {{ tenantId }}', { tenantId })}</div>}
+              </Stack>
             </MastheadBrand>
           </MastheadLogo>
         </MastheadMain>

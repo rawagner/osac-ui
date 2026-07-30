@@ -63,6 +63,24 @@ func GroupsFromToken(token string) []string {
 	return groups
 }
 
+// TenantIdFromToken extracts the tenant identifier from a JWT token.
+// Reads the Keycloak "organization" claim — a map keyed by organization ID.
+// Returns the first organization ID found, or empty string if absent.
+func TenantIdFromToken(token string) string {
+	claims, err := jwtClaims(token)
+	if err != nil {
+		return ""
+	}
+	orgMap, ok := claims["organization"].(map[string]interface{})
+	if !ok {
+		return ""
+	}
+	for orgID := range orgMap {
+		return orgID
+	}
+	return ""
+}
+
 // RolesFromToken extracts the raw role strings from a JWT access or ID token.
 // Roles are read from the standard Keycloak claim path realm_access.roles.
 // Returns an empty slice when the claim is absent or the token is invalid.
