@@ -34,17 +34,13 @@ import { useTranslation } from '@osac/ui-components/hooks/useTranslation';
 import { userRoleLabels } from '@osac/ui-components/shellTypes';
 import { getErrorMessage } from '@osac/ui-components/utils/error';
 
-interface ShellMastheadProps {
-  onLogout: () => Promise<void>;
-}
-
-export const ShellMasthead = ({ onLogout }: ShellMastheadProps) => {
+export const ShellMasthead = () => {
   const { t } = useTranslation();
   const [isUserMenuOpen, setIsUserMenuOpen] = React.useState(false);
   const [isPreferencesOpen, setPreferencesOpen] = React.useState(false);
   const [logoutError, setLogoutError] = React.useState<string>();
   const navigate = useNavigate();
-  const { role, username } = useSession();
+  const { role, username, logout } = useSession();
   const displayName = username || 'User';
 
   return (
@@ -115,7 +111,7 @@ export const ShellMasthead = ({ onLogout }: ShellMastheadProps) => {
                       <DropdownItem
                         onClick={async () => {
                           try {
-                            await onLogout();
+                            await logout();
                             navigate('/');
                           } catch (e) {
                             setLogoutError(getErrorMessage(e));
