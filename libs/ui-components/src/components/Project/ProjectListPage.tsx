@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import {
   Button,
   SearchInput,
@@ -10,7 +10,6 @@ import {
 } from '@patternfly/react-core';
 import { Table, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table';
 
-import type { Project } from '@osac/types';
 import { useProjects } from '@osac/ui-components/api/v1/project';
 import ListPage from '@osac/ui-components/components/Page/ListPage';
 import ListPageBody from '@osac/ui-components/components/Page/ListPageBody';
@@ -21,12 +20,10 @@ import { useTranslation } from '@osac/ui-components/hooks/useTranslation';
 
 import ProjectStatusLabel from './ProjectStatusLabel';
 
-const getProjectName = (project: Project): string => {
-  if (project.metadata?.name === '') {
-    return 'default';
-  }
-  return project.metadata?.name || project.id;
-};
+
+import ProjectActionsMenu from './ProjectActionsMenu';
+import { getProjectName } from './utils';
+
 
 const ProjectListPage = () => {
   const { t } = useTranslation();
@@ -91,17 +88,23 @@ const ProjectListPage = () => {
                 <Th>{t('Name')}</Th>
                 <Th>{t('Status')}</Th>
                 <Th>{t('Created')}</Th>
+                <Th aria-label={t('Actions')} />
               </Tr>
             </Thead>
             <Tbody>
               {filteredProjects.map((project) => (
                 <Tr key={project.id}>
-                  <Td dataLabel={t('Name')}>{getProjectName(project)}</Td>
+                  <Td dataLabel={t('Name')}>
+                    <Link to={`/projects/${project.id}`}>{getProjectName(project)}</Link>
+                  </Td>
                   <Td dataLabel={t('Status')}>
                     <ProjectStatusLabel project={project} />
                   </Td>
                   <Td dataLabel={t('Created')}>
                     <Timestamp value={project.metadata?.creationTimestamp} />
+                  </Td>
+                  <Td dataLabel={t('Actions')} isActionCell>
+                    <ProjectActionsMenu project={project} />
                   </Td>
                 </Tr>
               ))}
