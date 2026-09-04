@@ -109,6 +109,7 @@
   "catalogProvision.validation.virtualNetworkRequired": "Virtual network is required",
   "catalogProvision.vm.breadcrumbCreate": "Create",
   "catalogProvision.vm.fields.bootDisk": "Boot disk",
+  "catalogProvision.vm.fields.image": "VM image",
   "catalogProvision.vm.fields.instanceType": "Instance type",
   "catalogProvision.vm.fields.name": "Name",
   "catalogProvision.vm.fields.securityGroup": "Security groups",
