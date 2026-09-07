@@ -6,6 +6,7 @@ declare const celFilter: unique symbol;
 export type CelFilter<T = unknown> = string & { readonly [celFilter]: T };
 
 type CelLiteral = boolean | number | string;
+type EmptyCelFilter = '';
 type KnownKeys<T> = {
   [K in keyof T]: string extends K ? never : number extends K ? never : K;
 }[keyof T];
@@ -34,15 +35,19 @@ type CelFieldValue<T, Path extends string> = Path extends `${infer Head}.${infer
   : Path extends keyof T
     ? NonNullable<T[Path]>
     : never;
-type CelPredicate<T> = CelFilter<T> | ((builder: CelBuilder<T>) => CelFilter<T>);
+type CelPredicate<T> =
+  | CelFilter<T>
+  | EmptyCelFilter
+  | ((builder: CelBuilder<T>) => CelFilter<T> | EmptyCelFilter | undefined);
+type OptionalCelPredicate<T> = CelPredicate<T> | undefined;
 
 export interface CelBuilder<T> {
   /** Selects a generated TypeScript resource field and emits its snake_case CEL path. */
   field: <Path extends CelFieldPath<T>>(path: Path) => CelField<T, CelFieldValue<T, Path>>;
   /** Matches only when every predicate matches. Emits `true` when no predicates are supplied. */
-  and: (...predicates: readonly CelPredicate<T>[]) => CelFilter<T>;
+  and: (...predicates: readonly OptionalCelPredicate<T>[]) => CelFilter<T>;
   /** Matches when any predicate matches. Emits `false` when no predicates are supplied. */
-  or: (...predicates: readonly CelPredicate<T>[]) => CelFilter<T>;
+  or: (...predicates: readonly OptionalCelPredicate<T>[]) => CelFilter<T>;
   /** Parenthesizes an expression to preserve its precedence when composing filters. */
   group: (filter: CelFilter<T>) => CelFilter<T>;
 }
@@ -66,9 +71,12 @@ const toCelLiteral = (value: CelLiteral): string => {
 
 const resolvePredicates = <T>(
   builder: CelBuilder<T>,
-  predicates: readonly CelPredicate<T>[],
+  predicates: readonly OptionalCelPredicate<T>[],
 ): CelFilter<T>[] =>
-  predicates.map((predicate) => (typeof predicate === 'function' ? predicate(builder) : predicate));
+  predicates
+    .filter((predicate): predicate is CelPredicate<T> => predicate !== undefined)
+    .map((predicate) => (typeof predicate === 'function' ? predicate(builder) : predicate))
+    .filter((predicate): predicate is CelFilter<T> => predicate !== undefined && predicate !== '');
 
 class CelField<Resource, Value> {
   public constructor(private readonly path: string) {}
@@ -143,5 +151,9 @@ const createCelBuilder = <T>(): CelBuilder<T> => {
 };
 
 /** Builds a CEL expression scoped to a generated resource type. */
-export const cel = <T>(build: (filter: CelBuilder<T>) => CelFilter<T>): CelFilter<T> =>
-  build(createCelBuilder<T>());
+export const cel = <T>(
+  build: (filter: CelBuilder<T>) => CelFilter<T> | EmptyCelFilter | undefined,
+): CelFilter<T> | undefined => {
+  const expression = build(createCelBuilder<T>());
+  return expression === undefined || expression === '' ? undefined : expression;
+};

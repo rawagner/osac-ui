@@ -73,6 +73,26 @@ describe('cel', () => {
     );
   });
 
+  it('ignores undefined operands in and/or expressions', () => {
+    expect(
+      cel<ExampleResource>((filter) =>
+        filter.and(undefined, filter.field('id').equals('worker'), undefined),
+      ),
+    ).toBe('this.id == "worker"');
+    expect(
+      cel<ExampleResource>((filter) =>
+        filter.or(undefined, filter.field('id').equals('worker'), undefined),
+      ),
+    ).toBe('(this.id == "worker")');
+    expect(cel<ExampleResource>((filter) => filter.and(undefined, undefined))).toBe('true');
+    expect(cel<ExampleResource>((filter) => filter.or(undefined, undefined))).toBe('false');
+  });
+
+  it('returns undefined for an empty top-level expression', () => {
+    expect(cel<ExampleResource>(() => '')).toBeUndefined();
+    expect(cel<ExampleResource>(() => undefined)).toBeUndefined();
+  });
+
   it('checks field values against the generated resource shape', () => {
     cel<ExampleResource>((filter) => {
       expectTypeOf(filter.field('metadata.name').equals).parameter(0).toEqualTypeOf<string>();

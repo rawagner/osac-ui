@@ -6,7 +6,7 @@ import {
   type MessageShape,
   create,
 } from '@bufbuild/protobuf';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import type { UseMutationOptions, UseQueryOptions } from '@tanstack/react-query';
 
 import { useApiFetch } from './api-context';
@@ -67,6 +67,7 @@ export const useListResource = <Input extends DescMessage, Output extends DescMe
     ...options,
     queryKey: [service.typeName, 'list', request],
     queryFn: () => client.list(listRequest),
+    placeholderData: keepPreviousData,
   });
 };
 
